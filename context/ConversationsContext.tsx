@@ -3,8 +3,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { Conversation, Message, MessageAttachment } from "@/lib/types";
 import { v4 as uuidv4 } from "@/lib/utils";
-import { mockConversations } from "@/lib/mocks";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 type ConversationsContextType = {
   conversations: Conversation[];
@@ -21,31 +20,21 @@ type ConversationsContextType = {
 const ConversationsContext = createContext<ConversationsContextType | undefined>(undefined);
 
 export function ConversationsProvider({ children }: { children: React.ReactNode }) {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>(() => [
+    {
+      id: uuidv4(),
+      title: "New conversation",
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      messages: [],
+    },
+  ]);
   const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const { toast } = useToast();
 
-  // Load conversations from localStorage on mount
   useEffect(() => {
-    const savedConversations = localStorage.getItem("conversations");
-    if (savedConversations) {
-      try {
-        setConversations(JSON.parse(savedConversations));
-      } catch (error) {
-        console.error("Failed to parse conversations from localStorage", error);
-        setConversations(mockConversations);
-      }
-    } else {
-      setConversations(mockConversations);
-    }
-  }, []);
-
-  // Save conversations to localStorage when they change
-  useEffect(() => {
-    if (conversations.length > 0) {
-      localStorage.setItem("conversations", JSON.stringify(conversations));
-    }
+    setCurrentConversation(conversations[0]);
   }, [conversations]);
 
   const getConversation = useCallback(
@@ -257,44 +246,7 @@ fetchData('https://api.example.com/data')
 
 This function fetches data from a URL, handles potential errors, and returns the parsed JSON response.`;
   } else if (message.toLowerCase().includes("python")) {
-    return `Here's a Python example demonstrating a simple class with inheritance:
-
-\`\`\`python
-class Animal:
-    def __init__(self, name, species):
-        self.name = name
-        self.species = species
-        
-    def make_sound(self):
-        print("Some generic animal sound")
-        
-    def __str__(self):
-        return f"{self.name} is a {self.species}"
-        
-class Dog(Animal):
-    def __init__(self, name, breed):
-        super().__init__(name, species="Dog")
-        self.breed = breed
-        
-    def make_sound(self):
-        print("Woof!")
-        
-    def __str__(self):
-        return f"{self.name} is a {self.breed} dog"
-        
-# Create instances
-generic_animal = Animal("Leo", "Lion")
-dog = Dog("Buddy", "Golden Retriever")
-
-# Test the objects
-print(generic_animal)  # Leo is a Lion
-generic_animal.make_sound()  # Some generic animal sound
-
-print(dog)  # Buddy is a Golden Retriever
-dog.make_sound()  # Woof!
-\`\`\`
-
-This example shows basic OOP principles in Python: class definition, inheritance, method overriding, and the use of `super()`.`;
+    return "JavaScript code examples are available for coding questions. Please ask about JavaScript!";
   } else {
     return `I'm an AI assistant specialized in helping with coding questions. Feel free to ask about:
 
